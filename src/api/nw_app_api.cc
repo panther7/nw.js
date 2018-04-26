@@ -386,6 +386,80 @@ void NwAppSetDefaultBrowserFunction::OnCallback(
   DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
 }
 
+ExtensionFunction::ResponseAction
+NwAppRegisterBrowserFunction::Run() {
+  scoped_refptr<shell_integration::DefaultBrowserWorker> browserWorker(
+    new shell_integration::DefaultBrowserWorker(
+      base::Bind(static_cast<void (NwAppRegisterBrowserFunction::*)
+      (shell_integration::DefaultWebClientState)>(&NwAppRegisterBrowserFunction::OnCallback),
+        base::RetainedRef(this))));
+
+  browserWorker->StartRegistration();
+
+  return RespondLater();
+}
+
+void NwAppRegisterBrowserFunction::OnCallback(
+  shell_integration::DefaultWebClientState state) {
+  if (SetRegistrationViaRegistry())
+    Respond(OneArgument(std::unique_ptr<base::Value>(new base::Value(true))));
+  else
+    Respond(OneArgument(std::unique_ptr<base::Value>(new base::Value(false))));
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+}
+
+bool NwAppRegisterBrowserFunction::SetRegistrationViaRegistry() {
+#if defined(OS_WIN)
+  if (base::win::GetVersion() < base::win::Version::WIN8)
+    return false;
+
+  base::FilePath seznam_cz_exe;
+  if (!base::PathService::Get(base::FILE_EXE, &seznam_cz_exe))
+    return false;
+  
+  base::string16 suffix;
+  ShellUtil::GetUserSpecificRegistrySuffix(&suffix);
+
+  std::vector<std::unique_ptr<RegistryEntry>> registryItems;
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\URLAssociations"), L"")));
+  registryItems.back()->set_removal_flag(RegistryEntry::RemovalFlag::KEY);
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\FileAssociations"), L"")));
+  registryItems.back()->set_removal_flag(RegistryEntry::RemovalFlag::KEY);
+
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(L"Software\\RegisteredApplications", std::wstring(L"nwjs" + suffix), std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities"))));
+
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix), L"Chromium HTML Document")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix), L"AppUserModelId", std::wstring(L"nwjs" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix + L"\\Application"), L"AppUserModelId", std::wstring(L"nwjs" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix + L"\\Application"), L"ApplicationIcon", seznam_cz_exe.value() + L",0")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix + L"\\Application"), L"ApplicationName", L"Seznam.cz")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix + L"\\Application"), L"ApplicationDescription", L"Access the Internet")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix + L"\\Application"), L"ApplicationCompany", L"The NW.js Authors")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix + L"\\DefaultIcon"), seznam_cz_exe.value() + L",0")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix + L"\\shell\\open\\command"), L"\"" + seznam_cz_exe.value() + L"\"" + L" -surl=\"%1\"")));
+
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix), L"Seznam.cz")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities"), L"ApplicationDescription", L"Aplikace Seznam.cz")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities"), L"ApplicationIcon", seznam_cz_exe.value() + L",0")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities"), L"ApplicationName", L"Seznam.cz")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\FileAssociations"), L".htm", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\FileAssociations"), L".html", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\FileAssociations"), L".shtml", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\FileAssociations"), L".xht", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\FileAssociations"), L".xhtml", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\Startmenu"), L"StartMenuInternet", std::wstring(L"nwjs" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\URLAssociations"), L"ftp", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\URLAssociations"), L"http", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\Capabilities\\URLAssociations"), L"https", std::wstring(L"ChromiumHTM" + suffix))));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\DefaultIcon"), seznam_cz_exe.value() + L",0")));
+  registryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix + L"\\shell\\open\\command"), L"\"" + seznam_cz_exe.value() + L"\"")));
+
+  return AddToHKCURegistry(registryItems);
+
+#endif
+  return false;
+}
+
 bool NwAppGetBrowserRegistryIdFunction::RunNWSync(base::ListValue* response, std::string* error) {
 #if defined(OS_WIN)
   base::string16 suffix;
