@@ -7,6 +7,8 @@
 #include "base/command_line.h"
 #include "base/path_service.h"
 #include "base/memory/ptr_util.h"
+#include "chrome/browser/about_flags.h"
+#include "chrome/browser/browser_process.h"
 #include "base/message_loop/message_loop_current.h"
 #include "base/task/post_task.h"
 #include "content/public/browser/browser_task_traits.h"
@@ -15,6 +17,8 @@
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/extensions/devtools_util.h"
 #include "chrome/browser/extensions/extension_service.h"
+#include "components/flags_ui/flags_state.h"
+#include "components/flags_ui/pref_service_flags_storage.h"
 #include "chrome/browser/net/profile_network_context_service.h"
 #include "chrome/browser/net/profile_network_context_service_factory.h"
 #include "components/keep_alive_registry/keep_alive_registry.h"
@@ -458,6 +462,53 @@ bool NwAppRegisterBrowserFunction::SetRegistrationViaRegistry() {
 
 #endif
   return false;
+}
+
+base::ListValue* GetFlagsSettings() {
+  std::unique_ptr<flags_ui::FlagsStorage> flags_storage(new flags_ui::PrefServiceFlagsStorage(g_browser_process->local_state()));
+  std::set<std::string> flags = flags_storage->GetFlags();
+
+  base::ListValue* values = new base::ListValue();
+  for (const std::string& flag : flags)
+    values->AppendString(flag);
+
+  return values;
+}
+
+ExtensionFunction::ResponseAction
+NwAppGetFlagsSettingFunction::Run() {
+
+  base::ListValue* values = GetFlagsSettings();
+  return RespondNow(OneArgument(std::unique_ptr<base::Value>(static_cast<base::Value*>(values))));
+}
+
+void SanitizeList(flags_ui::FlagsStorage* flags_storage) {
+  std::unique_ptr<base::ListValue> supported_features(new base::ListValue);
+  std::unique_ptr<base::ListValue> unsupported_features(new base::ListValue);
+  about_flags::GetFlagFeatureEntries(flags_storage,
+    flags_ui::kOwnerAccessToFlags,
+    supported_features.get(),
+    unsupported_features.get());
+}
+
+ExtensionFunction::ResponseAction
+NwAppSetFlagsSettingFunction::Run() {
+
+  net::ProxyConfig config;
+  std::unique_ptr<nwapi::nw__app::SetFlagsSetting::Params> params(
+    nwapi::nw__app::SetFlagsSetting::Params::Create(*args_));
+  EXTENSION_FUNCTION_VALIDATE(params.get());
+
+  std::set<std::string> flags;
+  for (const std::string& param : params->data)
+    flags.insert(param);
+
+  std::unique_ptr<flags_ui::FlagsStorage> flags_storage(new flags_ui::PrefServiceFlagsStorage(g_browser_process->local_state()));
+  flags_storage->SetFlags(flags);
+  SanitizeList(flags_storage.get());
+
+  base::ListValue* values = GetFlagsSettings();
+  return RespondNow(OneArgument(std::unique_ptr<base::Value>(static_cast<base::Value*>(values))));
 }
 
 bool NwAppGetBrowserRegistryIdFunction::RunNWSync(base::ListValue* response, std::string* error) {
