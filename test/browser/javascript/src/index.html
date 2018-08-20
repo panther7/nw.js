@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>webview-canGoBack</title>
+    <script type="text/javascript" src="result.js"></script>
+    <script type="text/javascript" src="navigation.js"></script>
+    <script type="text/javascript" src="processForWebview.js"></script>
+    <script type="text/javascript" src="sslChange.js"></script>
+    <script type="text/javascript" src="download.js"></script>
+    <script type="text/javascript" src="titleFaviconEvent.js"></script>
+    <script type="text/javascript" src="history.js"></script>
+    <script type="text/javascript" src="targetUrlUpdate.js"></script>
+    <script type="text/javascript" src="defaultBrowser.js"></script>
+    <script type="text/javascript" src="notificationPermissionRequest.js"></script>
+    <script type="text/javascript" src="flagsSetting.js"></script>
+    <script type="text/javascript" src="main.js"></script>
+    <script type="text/javascript" src="getBrowserRegistryId.js"></script>
+    <script type="text/javascript" src="sqliteNamespace.js"></script>
+    <script type="text/javascript" src="notificationToast.js"></script>
+</head>
+<body>
+    <div style="height:480px">
+        <webview id="webviewId" partition="persist:res" style="width:100%; height:100%;" autosize="true"
+                 src="https://www.google.com"></webview>
+    </div>
+    <div>
+        Website:
+        <input id="website" type="text" value="https://www.youtube.com">
+        <button id="goButton" type="button">Go!</button><br />
+        <button id="canGoBackButton" type="button">webview-canGoBack</button><br />
+        <button id="backButton" type="button">webview-back</button><br />
+        <br />
+        <button id="defaultBrowserButton" type="button">default_browser test</button><br />
+        <button id="downloadIdButton" type="button">download_id test</button><br />
+        <button id="flagsSettingButton" type="button">flags_settings test</button><br />
+        <button id="getBrowserRegistryIdButton" type="button">get_browser_registry_id test</button><br />
+        <button id="historyButton" type="button">history test</button><br />
+        <button id="notificationPermissionRequestButton" type="button">notification_permission_request test</button><br />
+        <button id="notificationToastButton" type="button">notification_toast test</button><br />
+        <button id="processButton" type="button">process_for_webview test</button><br />
+        <button id="sqliteNamespaceButton" type="button">sqlite_namespace test</button><br />
+        <button id="SSLChangeButton" type="button">ssl_change test</button><br />
+        <button id="targetUrlUpdateButton" type="button">target_url_update test</button><br />
+        <button id="titleFaviconEventButton" type="button">title_favicon_event test</button><br />
+    </div>
+    <div id="testResults"></div>
+</body>
+</html>
