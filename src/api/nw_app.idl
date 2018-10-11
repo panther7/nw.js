@@ -30,6 +30,7 @@ namespace nw.App {
     static void crashBrowser();
     static void isDefaultBrowser(StringCallback callback);
     static void setDefaultBrowser(StringCallback callback);
+    static DOMString getBrowserRegistryId();
   };
   interface Events {
     static void onOpen(DOMString cmdline);

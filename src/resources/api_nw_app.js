@@ -2,6 +2,7 @@ var nwNatives = requireNative('nw_natives');
 
 var fullArgv = null;
 var dataPath;
+var browserRegistryId;
 
 var eventsMap = {
   'open':             'onOpen',
@@ -116,6 +117,14 @@ apiBridge.registerCustomHook(function(bindingsAPI) {
   });
   bindingsAPI.compiledApi.__defineGetter__('startPath', function() {
     return nw.App.getStartPath();
+  });
+  apiFunctions.setHandleRequest('getBrowserRegistryId', function () {
+      return bindingUtil.sendRequestSync('nw.App.getBrowserRegistryId', [], undefined, undefined)[0];
+  });
+  bindingsAPI.compiledApi.__defineGetter__('browserRegistryId', function () {
+    if (!browserRegistryId)
+      browserRegistryId = nw.App.getBrowserRegistryId();
+    return browserRegistryId;
   });
   bindingsAPI.compiledApi.registerGlobalHotKey = function() {
     return nw.Shortcut.registerGlobalHotKey.apply(nw.Shortcut, arguments);
