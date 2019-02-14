@@ -464,6 +464,57 @@ bool NwAppRegisterBrowserFunction::SetRegistrationViaRegistry() {
   return false;
 }
 
+ExtensionFunction::ResponseAction
+NwAppUnregisterBrowserFunction::Run() {
+  scoped_refptr<shell_integration::DefaultBrowserWorker> browserWorker(
+    new shell_integration::DefaultBrowserWorker(
+      base::Bind(static_cast<void (NwAppUnregisterBrowserFunction::*)
+      (shell_integration::DefaultWebClientState)>(&NwAppUnregisterBrowserFunction::OnCallback),
+        base::RetainedRef(this))));
+
+  browserWorker->StartRegistration();
+
+  return RespondLater();
+}
+
+void NwAppUnregisterBrowserFunction::OnCallback(
+  shell_integration::DefaultWebClientState state) {
+  if (UnsetRegistrationViaRegistry())
+    Respond(OneArgument(std::unique_ptr<base::Value>(new base::Value(true))));
+  else
+    Respond(OneArgument(std::unique_ptr<base::Value>(new base::Value(false))));
+  DCHECK_CURRENTLY_ON(content::BrowserThread::UI);
+}
+
+bool NwAppUnregisterBrowserFunction::UnsetRegistrationViaRegistry() {
+#if defined(OS_WIN)
+  
+  if (base::win::GetVersion() < base::win::Version::WIN8)
+    return false;
+
+  base::FilePath seznam_cz_exe;
+  if (!base::PathService::Get(base::FILE_EXE, &seznam_cz_exe))
+    return false;
+
+  base::string16 suffix;
+  ShellUtil::GetUserSpecificRegistrySuffix(&suffix);
+
+  std::vector<std::unique_ptr<RegistryEntry>> unregistryItems;
+
+  unregistryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(L"Software\\RegisteredApplications", std::wstring(L"nwjs" + suffix), L"")));
+  unregistryItems.back()->set_removal_flag(RegistryEntry::RemovalFlag::VALUE);
+
+  unregistryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Classes\\ChromiumHTM" + suffix), L"")));
+  unregistryItems.back()->set_removal_flag(RegistryEntry::RemovalFlag::KEY);
+  unregistryItems.push_back(std::unique_ptr<RegistryEntry>(new RegistryEntry(std::wstring(L"Software\\Clients\\StartMenuInternet\\nwjs" + suffix), L"")));
+  unregistryItems.back()->set_removal_flag(RegistryEntry::RemovalFlag::KEY);
+
+  return AddToHKCURegistry(unregistryItems);
+
+#endif
+  return false;
+}
+
 base::ListValue* GetFlagsSettings() {
   std::unique_ptr<flags_ui::FlagsStorage> flags_storage(new flags_ui::PrefServiceFlagsStorage(g_browser_process->local_state()));
   std::set<std::string> flags = flags_storage->GetFlags();
