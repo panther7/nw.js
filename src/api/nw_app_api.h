@@ -170,6 +170,22 @@ private:
   bool SetRegistrationViaRegistry();
 };
 
+class NwAppUnregisterBrowserFunction : public ExtensionFunction {
+ public:
+  NwAppUnregisterBrowserFunction() {}
+  void OnCallback(shell_integration::DefaultWebClientState state);
+
+ protected:
+  ~NwAppUnregisterBrowserFunction() override {}
+
+  // ExtensionFunction:
+  ResponseAction Run() override;
+  DECLARE_EXTENSION_FUNCTION("nw.App.unregisterBrowser", UNKNOWN)
+
+ private:
+  bool UnsetRegistrationViaRegistry();
+};
+
 class NwAppGetFlagsSettingFunction : public ExtensionFunction {
 public:
   NwAppGetFlagsSettingFunction() {}
