@@ -83,6 +83,8 @@ if (is_component_build) {
 }
 
 nw_chrome_browser_sources = [
+        "src/api/nw_sqlite_api.cc",
+        "src/api/nw_sqlite_api.h",
         "src/api/nw_app_api.cc",
         "src/api/nw_app_api.h",
         "src/api/nw_clipboard_api.cc",
