@@ -31,6 +31,10 @@
     "channel": "stable",
     "contexts": ["blessed_extension"]
   },
+  "nw.SQLite": {
+    "channel": "stable",
+    "contexts": ["blessed_extension"]
+  },
   "nw.Obj": {
     "channel": "stable",
     "contexts": ["blessed_extension"]
