@@ -9,6 +9,7 @@
   'variables': {
     'schema_files': [
       'nw_object.idl',
+      'nw_sqlite.idl',
       'nw_app.idl',
       'nw_window.idl',
       'nw_clipboard.idl',
