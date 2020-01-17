@@ -11,6 +11,7 @@
       'nw_object.idl',
       'nw_sqlite.idl',
       'nw_app.idl',
+      'nw_import.idl',
       'nw_window.idl',
       'nw_clipboard.idl',
       'nw_menu.idl',
