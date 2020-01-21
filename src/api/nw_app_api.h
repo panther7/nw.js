@@ -223,5 +223,18 @@ private:
   DISALLOW_COPY_AND_ASSIGN(NwAppGetBrowserRegistryIdFunction);
 };
 
+class NwAppGetDefaultBrowserFunction : public NWSyncExtensionFunction {
+ public:
+  NwAppGetDefaultBrowserFunction() {}
+  bool RunNWSync(base::ListValue* response, std::string* error) override;
+
+protected:
+  ~NwAppGetDefaultBrowserFunction() override {}
+
+  DECLARE_EXTENSION_FUNCTION("nw.App.getDefaultBrowser", UNKNOWN)
+private:
+  DISALLOW_COPY_AND_ASSIGN(NwAppGetDefaultBrowserFunction);
+};
+
 } // namespace extensions
 #endif
