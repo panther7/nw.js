@@ -574,4 +574,10 @@ bool NwAppGetBrowserRegistryIdFunction::RunNWSync(base::ListValue* response, std
   return false;
 }
 
+bool NwAppGetDefaultBrowserFunction::RunNWSync(base::ListValue* response, std::string* error) {
+  base::string16 appName = shell_integration::GetApplicationNameForProtocol(GURL("http://"));
+  response->AppendString(appName);
+  return true;
+}
+
 } // namespace extensions
