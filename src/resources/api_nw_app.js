@@ -121,6 +121,9 @@ apiBridge.registerCustomHook(function(bindingsAPI) {
   apiFunctions.setHandleRequest('getBrowserRegistryId', function () {
       return bindingUtil.sendRequestSync('nw.App.getBrowserRegistryId', [], undefined, undefined)[0];
   });
+  apiFunctions.setHandleRequest('getDefaultBrowser', function () {
+      return bindingUtil.sendRequestSync('nw.App.getDefaultBrowser', [], undefined, undefined)[0];
+  });
   bindingsAPI.compiledApi.__defineGetter__('browserRegistryId', function () {
     if (!browserRegistryId)
       browserRegistryId = nw.App.getBrowserRegistryId();
