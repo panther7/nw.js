@@ -17,6 +17,9 @@
 #include "chrome/browser/devtools/devtools_window.h"
 #include "chrome/browser/extensions/devtools_util.h"
 #include "chrome/browser/extensions/extension_service.h"
+#include "chrome/browser/notifications/platform_notification_service_factory.h"
+#include "chrome/browser/notifications/platform_notification_service_impl.h"
+#include "chrome/browser/profiles/profile_manager.h"
 #include "components/flags_ui/flags_state.h"
 #include "components/flags_ui/pref_service_flags_storage.h"
 #include "chrome/browser/net/profile_network_context_service.h"
@@ -52,6 +55,10 @@
 #endif
 
 using namespace extensions::nwapi::nw__app;
+
+static const std::string sNotifyAllow = "allow";
+static const std::string sNotifyDeny = "deny";
+static const std::string sNotifyDefault = "default";
 
 namespace extensions {
 NwAppQuitFunction::NwAppQuitFunction() {
@@ -578,6 +585,70 @@ bool NwAppGetDefaultBrowserFunction::RunNWSync(base::ListValue* response, std::s
   base::string16 appName = shell_integration::GetApplicationNameForProtocol(GURL("http://"));
   response->AppendString(appName);
   return true;
+}
+
+ExtensionFunction::ResponseAction NwAppGetNotificationToastFlagFunction::Run() {
+  std::unique_ptr<nwapi::nw__app::GetNotificationToastFlag::Params> params(
+      nwapi::nw__app::GetNotificationToastFlag::Params::Create(*args_));
+  EXTENSION_FUNCTION_VALIDATE(params.get());
+
+  const std::string& url = params->url;
+
+  Profile* profile = ProfileManager::GetLastUsedProfile();
+  PlatformNotificationServiceImpl* notificationService =
+      PlatformNotificationServiceFactory::GetForProfile(profile);
+
+  std::unordered_map<std::string, content::NotifyToast>::iterator itPrmssn;
+  itPrmssn = notificationService->mapPrmssn.find(url);
+  if (itPrmssn != notificationService->mapPrmssn.end()) {
+    switch (itPrmssn->second) {
+      case content::NotifyToast::Allow:
+        return RespondNow(OneArgument(
+            std::unique_ptr<base::Value>(new base::Value(sNotifyAllow))));
+        break;
+      case content::NotifyToast::Deny:
+        return RespondNow(OneArgument(
+            std::unique_ptr<base::Value>(new base::Value(sNotifyDeny))));
+        break;
+      default:
+        return RespondNow(OneArgument(
+            std::unique_ptr<base::Value>(new base::Value(sNotifyDefault))));
+    }
+  } else {
+    return RespondNow(OneArgument(
+        std::unique_ptr<base::Value>(new base::Value(sNotifyDefault))));
+  }
+
+  return RespondNow(Error(""));
+}
+
+ExtensionFunction::ResponseAction NwAppSetNotificationToastFlagFunction::Run() {
+  std::unique_ptr<nwapi::nw__app::SetNotificationToastFlag::Params> params(
+      nwapi::nw__app::SetNotificationToastFlag::Params::Create(*args_));
+  EXTENSION_FUNCTION_VALIDATE(params.get());
+
+  const std::string& url = params->url;
+  const std::string& state = params->state;
+
+  Profile* profile = ProfileManager::GetLastUsedProfile();
+  PlatformNotificationServiceImpl* notificationService =
+      PlatformNotificationServiceFactory::GetForProfile(profile);
+
+  if (state.compare(sNotifyAllow) == 0) {
+    notificationService->mapPrmssn[url] = content::NotifyToast::Allow;
+    return RespondNow(OneArgument(
+        std::unique_ptr<base::Value>(new base::Value(sNotifyAllow))));
+  } else if (state.compare(sNotifyDeny) == 0) {
+    notificationService->mapPrmssn[url] = content::NotifyToast::Deny;
+    return RespondNow(OneArgument(
+        std::unique_ptr<base::Value>(new base::Value(sNotifyDeny))));
+  } else if (state.compare(sNotifyDefault) == 0) {
+    notificationService->mapPrmssn.erase(url);
+    return RespondNow(OneArgument(
+        std::unique_ptr<base::Value>(new base::Value(sNotifyDefault))));
+  }
+
+  return RespondNow(Error(""));
 }
 
 } // namespace extensions
