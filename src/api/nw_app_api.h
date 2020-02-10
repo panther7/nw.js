@@ -236,5 +236,29 @@ private:
   DISALLOW_COPY_AND_ASSIGN(NwAppGetDefaultBrowserFunction);
 };
 
+class NwAppGetNotificationToastFlagFunction : public ExtensionFunction {
+public:
+  NwAppGetNotificationToastFlagFunction() {}
+
+protected:
+  ~NwAppGetNotificationToastFlagFunction() override {}
+
+  // ExtensionFunction:
+  ResponseAction Run() override;
+  DECLARE_EXTENSION_FUNCTION("nw.App.getNotificationToastFlag", UNKNOWN)
+};
+
+class NwAppSetNotificationToastFlagFunction : public ExtensionFunction {
+public:
+  NwAppSetNotificationToastFlagFunction() {}
+
+protected:
+  ~NwAppSetNotificationToastFlagFunction() override {}
+
+  // ExtensionFunction:
+  ResponseAction Run() override;
+  DECLARE_EXTENSION_FUNCTION("nw.App.setNotificationToastFlag", UNKNOWN)
+};
+
 } // namespace extensions
 #endif
