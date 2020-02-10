@@ -38,6 +38,8 @@ namespace nw.App {
     static void setFlagsSetting(DOMString[] data, optional ObjectsCallback callback);
     static DOMString getBrowserRegistryId();
     static DOMString getDefaultBrowser();
+    static void getNotificationToastFlag(DOMString url, StringCallback callback);
+    static void setNotificationToastFlag(DOMString url, DOMString state, StringCallback callback);
   };
   interface Events {
     static void onOpen(DOMString cmdline);
