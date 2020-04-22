@@ -54,6 +54,7 @@ To apply specific changes to current branch, we cherry-picks single commits from
 | Widevine CDM | [v0.42.6](https://github.com/michalvasek/chromium.src/commit/c51993adac46f30c1a1faddb077f14b488ec4add) | `N/A` | [NWjs_Custom_Changes](#widevine-cdm) | No |
 | Notification toast flag | [v0.43.6](https://github.com/michalvasek/chromium.src/commit/7afdb31c7f4d0a898caaa1cb8829c44ffb7d5ca3) | [v0.43.6](https://github.com/michalvasek/nw.js/commit/fbe082af04814ee5a306b5e9a0ce6b4879f88b60) | [NWjs_Custom_Changes](#notification-toast-flag) | [NWjs_Testing](NWjs_Testing.MD#run-nwjs-tests) |
 | Cancel login dialog | [v0.43.6](https://github.com/michalvasek/chromium.src/commit/621dd903c8245c6a5b31ec78e52c2f34b46c9f05) | `N/A` | [NWjs_Custom_Changes](#cancel-login-dialog) | No |
+| Custom AppUserModelId from package.json | [v0.47.0](https://gitlab.seznam.net/sbrowser/software/core-chromium/-/commit/8e3b9ff055d1ba190d5f8c171d65a80903355b5f) | `N/A` | [NWjs_Custom_Changes](#custom-appusermodelid-from-packagejson) | No |
 | Seznam suffix in version | `N/A` | [v0.43.2](https://github.com/michalvasek/nw.js/commit/7e245f8cbb6f0f523443f0786e93c01c9e7d6855) | [NWjs_Custom_Changes](#seznam-suffix-in-version) | No |
 
 ### Allow create webview in new process
@@ -575,6 +576,10 @@ Cancel login dialog
 - Do not show Chrome login prompt for requested URL
 - Call CancelAuth() function
   ```
+
+### Custom AppUserModelId from package.json
+
+Automatically sets specific AppUserModelId for every browser window. The Id is specified in file `package.json` and variable `name`. If file or variable doesn’t exist, default id is used.
 
 ### Seznam suffix in version
 
