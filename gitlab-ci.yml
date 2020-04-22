@@ -1,0 +1,18 @@
+.template: &build-common
+  before_script:
+    - alfred.sh --no-configure --no-build
+  variables:
+    GIT_STRATEGY: fetch
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src
+
+stages:
+  - build
+
+Build macOS:
+  <<: *build-common
+  stage: build
+  when: manual
+  script:
+    - alfred.sh --no-clone --no-hans
+  tags:
+    - nwjs-builder-mac
