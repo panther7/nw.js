@@ -1,0 +1,1 @@
+../lin/cp_binaries.sh
