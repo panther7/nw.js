@@ -1,0 +1,110 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  GIT_STRATEGY: fetch
+
+Build Linux:
+  before_script:
+    - build/lin/init.sh
+  stage: build
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
+  script:
+    - cd ../..
+    - ninja -C out/nw nwjs
+    - ninja -C out/Release node
+    - ninja -C out/nw copy_node
+    - content/nw/build/lin/cp_binaries.sh out/nw -d content/nw --target ${CI_BUILD_REF_NAME}
+  tags:
+    - nwjs
+    - linux
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  artifacts:
+    name: "${CI_BUILD_REF_NAME}"
+    paths:
+      - ./${CI_BUILD_REF_NAME}.tar.gz
+
+Build MacOS:
+  before_script:
+    - build/osx/init.sh
+  stage: build
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
+  script:
+    - cd ../..
+    - ninja -C out/nw nwjs
+    - ninja -C out/Release node
+    - ninja -C out/nw copy_node
+    - content/nw/build/osx/cp_binaries.sh out/nw -d content/nw --target ${CI_BUILD_REF_NAME}
+  tags:
+    - sbrowser-mac
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  artifacts:
+    name: "${CI_BUILD_REF_NAME}"
+    paths:
+      - ./${CI_BUILD_REF_NAME}.tar.gz
+
+Build Windows:
+  stage: build
+  script:
+    - build/win/pt1_build.bat
+    - build/win/pt2_build.bat
+  tags:
+    - sbrowser-win
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+
+Test Windows:
+  stage: test
+  script:
+    - build/win/pt3_test.bat
+    - build/win/pt4_test.bat
+  tags:
+    - sbrowser-win
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  needs:
+    - Build Windows
+
+Deploy Linux:
+  stage: deploy
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
+  script:
+    - build/lin/deploy.sh ${CI_BUILD_REF_NAME}.tar.gz
+  tags:
+    - nwjs
+    - linux
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  needs:
+    - Build Linux
+
+Deploy MacOS:
+  stage: deploy
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
+  script:
+    - build/osx/deploy.sh ${CI_BUILD_REF_NAME}.tar.gz
+  tags:
+    - nwjs-builder-mac
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  needs:
+    - Build MacOS
+
+Deploy Windows:
+  stage: deploy
+  script:
+    - build/win/pt5_deploy.bat
+  tags:
+    - sbrowser-win
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  needs:
+    - Build Windows
