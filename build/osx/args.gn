@@ -1,0 +1,16 @@
+# See "gn args <out_dir> --list" for available build arguments.
+is_debug=false
+target_cpu="x64"
+proprietary_codecs=true
+is_component_ffmpeg=true
+ffmpeg_branding="Chrome"
+is_official_build=false
+#nwjs_sdk=false
+enable_widevine=true
+enable_nacl=false
+enable_stripping=true
+enable_dsyms=true
+enable_precompiled_headers=false
+symbol_level=0
+clang_use_chrome_plugins=false
+google_api_key="{_GAK_}"
