@@ -1,12 +1,20 @@
 .template: &build-common
-  before_script:
-    - alfred.sh --no-configure --no-build
   variables:
     GIT_STRATEGY: fetch
     GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src
 
 stages:
+  - clone
   - build
+
+Clone macOS:
+  <<: *build-common
+  stage: clone
+  when: manual
+  script:
+    - alfred.sh --no-configure --no-build
+  tags:
+    - nwjs-builder-mac
 
 Build macOS:
   <<: *build-common
