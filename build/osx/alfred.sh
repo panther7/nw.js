@@ -1,11 +1,10 @@
 #!/bin/bash
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-NW=27;
+NW="master";
 HANS_REMOTE_NAME="hans";
 HANS=(
     "src https://github.com/janRucka/chromium.src-1.git browser${NW}-mac"
-    "src/content/nw https://github.com/janRucka/nw.js.git browser${NW}"
+    "src/content/nw https://gitlab.seznam.net/sbrowser/software/core-chromium browser${NW}"
 );
 
 export GYP_GENERATORS="ninja"
@@ -30,31 +29,11 @@ function clone () {
 }
 
 # Ohansuje repo. Tzn přidá remote, fetchne a checkoutne větev
-function hans () {
-    local TARGET="${DIR}/${1}";
-    local SRC="${2}";
-    local BRANCH="${3}";
-
-    echo "Hansing ${TARGET} --> ${SRC}@${BRANCH}...";
-    (
-        bash <<EOF
-cd "${TARGET}" || exit 253;
-for r in \$(git remote); do
-    if [ "\$r" = "${HANS_REMOTE_NAME}" ]; then git remote remove "${HANS_REMOTE_NAME}" >/dev/null || exit 254; fi;
-done;
-git remote add "${HANS_REMOTE_NAME}" "${SRC}" &&
-git fetch --quiet "${HANS_REMOTE_NAME}" &&
-git checkout -B "${BRANCH}" --track "${HANS_REMOTE_NAME}/${BRANCH}" || exit 255
-EOF
-    )  || error "Failed to hans $TARGET";
-    echo "Sucessfully Hansed ${TARGET} --> ${SRC}@${BRANCH}";
-}
-
 function task_clone () {
     local PIDS=();
-    clone "src/content/nw" "https://github.com/nwjs/nw.js" "nw${NW}" & PIDS+=($!);
-    clone "src/third_party/node-nw" "https://github.com/nwjs/node" "nw${NW}" & PIDS+=($!);
-    clone "src/v8" "https://github.com/nwjs/v8" "nw${NW}" & PIDS+=($!);
+    clone "src/content/nw" "https://github.com/nwjs/nw.js" "${NW}" & PIDS+=($!);
+    clone "src/third_party/node-nw" "https://github.com/nwjs/node" "${NW}" & PIDS+=($!);
+    clone "src/v8" "https://github.com/nwjs/v8" "${NW}" & PIDS+=($!);
 
     wait "${PIDS[@]}" || error "Failed to wait..." # Počkáme na ty 3 klony
 
@@ -80,15 +59,6 @@ cache_dir = None
 EOF
 
     gclient sync --with_branch_heads --nohooks;
-}
-
-function task_hans () {
-    local PIDS=();
-    for args in "${HANS[@]}"; do
-        hans $args &
-        PIDS+=($!);
-    done;
-    wait "${PIDS[@]}" || error "Failed to wait..." # Počkáme na ohansování
 }
 
 function task_configure () {
@@ -144,23 +114,6 @@ EOF
     ) || error "Failed to configure";
 }
 
-function task_patch_widevine () {
-    if [ "$(uname)" = "Darwin" ]; then
-        (
-            bash <<EOF;
-cd "${DIR}/src/third_party/widevine/cdm" &&
-git checkout -- . &&
-mv widevine_cdm_common.h widevine_cdm_common.h.bak &&
-grep -iv buildflag widevine_cdm_common.h.bak > widevine_cdm_common.h &&
-cp stub/* . &&
-echo '#define WIDEVINE_CDM_VERSION_STRING "1.4.8.1030"' >> widevine_cdm_version.h || exit 255
-EOF
-        ) || error "Failed to patch widevine";
-    else
-        echo "Not patching Widewine on this platform"
-    fi;
-}
-
 function task_build () {
     (
         bash <<EOF
@@ -173,33 +126,18 @@ echo "Main build DONE!!!" || exit 255;
 VERSION_DIR=\$(find out/nw/nwjs.app/Contents/Versions -type d -depth 1);
 echo "VERSION_DIR=\$VERSION_DIR";
 
-if [ -d "\$VERSION_DIR" ]; then
-	if [ -L "\$VERSION_DIR/nwjs Framework.framework/Libraries" ]; then
-		rm "\$VERSION_DIR/nwjs Framework.framework/Libraries";
-	fi;
-
-	cp -XPR "../Libraries" "\$VERSION_DIR/nwjs Framework.framework/Versions/A" &&
-	ln -s Versions/A/Libraries "\$VERSION_DIR/nwjs Framework.framework/Libraries" &&
-	cp -XPR "../Widevine Resources.bundle" "\$VERSION_DIR" || exit 255;
-else
-	echo "Failed to locate VERSION_DIR";
-	exit 255;
-fi;
-
 EOF
     ) && echo "DONE! DONE! DONE!!!" || error "BUILD: FAIL! FAIL! FAIL!!!";
 }
 
 DO_TASK_CLONE=1;
-DO_TASK_HANS=1;
 DO_TASK_CONFIGURE=1;
-DO_TASK_PATCH_WIDEVINE=1;
 DO_TASK_BUILD=1;
 
 for arg in "$@"; do
     case "$arg" in
         "-?"|"-h"|"--help")
-            echo "Availible tasks: clone, hans, configure, patch-widevine, build";
+            echo "Availible tasks: clone, configure, build";
             echo "";
             echo "You can skip task using: --no-<task>";
             echo "    For example: --no-clone";
@@ -209,16 +147,8 @@ for arg in "$@"; do
             DO_TASK_CLONE=0
         ;;
 
-        "--no-hans")
-            DO_TASK_HANS=0
-        ;;
-
         "--no-configure")
             DO_TASK_CONFIGURE=0
-        ;;
-
-        "--no-patch-widevine")
-            DO_TASK_PATCH_WIDEVINE=0
         ;;
 
         "--no-build")
@@ -227,18 +157,17 @@ for arg in "$@"; do
     esac
 done;
 
-DEPOT_TOOLS="$( dirname "$DIR" )/depot_tools";
-echo "$PATH" | grep "${DEPOT_TOOLS}:" &>/dev/null;
+DEPOT_TOOLS="$/Users/fik/depot_tools";
 if [ "$?" -gt 0 ]; then
 	export PATH="$DEPOT_TOOLS:$PATH";
 	echo "Added DEPOT_TOOLS to PATH: $PATH";
+    gclient --sync;
 else
 	echo "Not adding DEPOT_TOOLS to PATH, because they seem to be already in :)"
+    gclient --sync;
 fi;
 
 if [ "${DO_TASK_CLONE}" -gt 0 ]; then task_clone; fi;
-if [ "${DO_TASK_HANS}" -gt 0 ]; then task_hans; fi;
 if [ "${DO_TASK_CONFIGURE}" -gt 0 ]; then task_configure; fi;
-if [ "${DO_TASK_PATCH_WIDEVINE}" -gt 0 ]; then task_patch_widevine; fi;
 if [ "${DO_TASK_BUILD}" -gt 0 ]; then task_build; fi;
 echo DONE;
