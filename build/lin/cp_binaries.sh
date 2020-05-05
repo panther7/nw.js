@@ -24,7 +24,7 @@ if [ -n "$1" ]; then
 		shift
 		;;
             *)
-		if [[ -z "$SOURCE_DIR" ]]; then
+		if [[ -z ${SOURCE_DIR} ]]; then
                     SOURCE_DIR=${1%/}
 		fi
 		shift
@@ -43,13 +43,20 @@ else
     exit 255
 fi
 
+SEDCOMMAND="sed -rn"
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    SEDCOMMAND="sed -En"
+fi
+
 cd $SOURCE_DIR
 #get the last tag of browser-v0.xy.wv+szn.z form and pick `v0.xy.vw`
-LATEST_VERSION=`git describe --abbrev=0 | sed -n 's/.*\(v[0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p'`
+LATEST_VERSION=`git describe --abbrev=0 | ${SEDCOMMAND} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'`
+
+#'s/.*\(v[0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p'`
 cd -
 
 #if there is no artifact path specified, create some
-if [ -z ${OUT_DIR} ]; then
+if [[ -z ${OUT_DIR} ]]; then
     OUT_DIR=${HOME}/artifacts
 fi
 
@@ -78,7 +85,9 @@ LIST_OF_NWJS_BIN_FILES="locales \
     node.dll \
     nw.dll \
     nw_elf.dll
-"   
+"
+elif [[ $OSTYPE == "darwin"* ]]; then
+    LIST_OF_NWJS_BIN_FILES="nwjs.app"
 else
 LIST_OF_NWJS_BIN_FILES="lib \
     locales \
@@ -98,13 +107,17 @@ for file in $LIST_OF_NWJS_BIN_FILES; do
     cp -af $SOURCE_DIR/$file ${OUT_DIR}
 done
 
-cp -af ${WIDEVINE_DIR} ${OUT_DIR}
+if [[ $OSTYPE == "darwin"* ]]; then
+    cp -af ${WIDEVINE_DIR} "${OUT_DIR}/nwjs.app/Contents/Frameworks/nwjs Framework.framework/Libraries/"
+else
+    cp -af ${WIDEVINE_DIR} ${OUT_DIR}
+fi
 
-if [ -z ${TARGET_NAME} ]; then
+if [[ -z ${TARGET_NAME} ]]; then
     TARGET_NAME="nwjs-${LATEST_VERSION}"
 fi
 
-echo "Zipping... ${TARGET_NAME}"
+echo "Zipping... ${LATEST_VERSION} to ${TARGET_NAME}.tar.gz (in ${OUT_DIR}/..)"
 cd ${OUT_DIR}/..
 tar cfz ${TARGET_NAME}.tar.gz ${LATEST_VERSION} #create zipped artifact
 

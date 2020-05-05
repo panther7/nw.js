@@ -1,5 +1,10 @@
 #!/bin/bash
 
+SEDCOMMAND="sed -rn"
+if [[ $OSTYPE == "darwin"* ]]; then
+    SEDCOMMAND="sed -En"
+fi
+
 RETVAL=0
 
 GITTAG=`git describe --tags`
@@ -10,6 +15,9 @@ SRC_REPO=${PWD}
 echo "Deploying from ${SRC_REPO}"
 
 BIN_REPO=${HOME}/NWjs-build-linux
+if [[ $OSTYPE == "darwin"* ]]; then
+    BIN_REPO=${HOME}/NWjs-build-mac
+fi
 
 ARTIFACT=""
 
@@ -17,7 +25,7 @@ if [ -n "$1" ]; then
     while [ -n "$1" ]; do  # process ALL arguments
         case "$1" in
             *)
-		if [[ -z "$SOURCE_FILE" ]]; then
+		if [[ -z ${SOURCE_FILE} ]]; then
                     ARTIFACT=${1%/}
 		fi
 		shift
@@ -25,7 +33,7 @@ if [ -n "$1" ]; then
         esac
     done
 
-    if [ -z ${ARTIFACT} ]; then
+    if [[ -z ${ARTIFACT} ]]; then
         echo "No matching argument!"
         echo "Usage: [./deploy.sh <artifact>(like artifacts/sbrowser-v0.45.2+szn.1)]"
         exit 255
@@ -41,16 +49,16 @@ echo "Stepping into ${BIN_REPO}"
 cd ${BIN_REPO}
 
 RETVAL=$?
-if [ $RETVAL -ne 0 ]; then
+if [[ $RETVAL -ne 0 ]]; then
     echo "Directory does not exist"
     exit $RETVAL
 fi
 
 GITHASH=`git rev-parse HEAD`
 GITBRANCH=`git ls-remote --heads origin | grep ${GITHASH} | cut -d '/' -f 3` #browser45_dev
-GITMAJOR=`echo ${GITBRANCH} | sed -n 's|browser\([0-9]\+\)_dev|\1|p'`
+GITMAJOR=`echo ${GITBRANCH} | ${SEDCOMMAND} 's|browser([0-9]+)_dev|\1|p'`
 
-if [ ${ARTIFACT} == "/*" ]; then
+if [[ ${ARTIFACT} == "/*" ]]; then
     cp ${ARTIFACT} ./
     ARTIFACT=$(basename ${ARTIFACT})
 else
@@ -59,36 +67,36 @@ else
 fi
 
 RETVAL=$?
-if [ $RETVAL -ne 0 ]; then
+if [[ $RETVAL -ne 0 ]]; then
     echo "Copying of ${ARTIFACT} has been unsuccesfull"
     exit $RETVAL
 fi
 
-NWJSTAG=`echo ${ARTIFACT} | sed -n 's|.*\(v[0-9]\+\.[0-9]\+\.[0-9]\+\).*|\1|p'` #e.g. browser-v0.45.2+szn.1 = v0.45.2
-NWJSMAJOR=`echo ${NWJSTAG} | sed -n 's|.*v[0-9]\+\.\([0-9]\+\)\.[0-9]\+.*|\1|p'` #e.g. v0.45.2 = 45
+NWJSTAG=`echo ${ARTIFACT} | ${SEDCOMMAND} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'` #e.g. browser-v0.45.2+szn.1 = v0.45.2
+NWJSMAJOR=`echo ${NWJSTAG} | ${SEDCOMMAND} 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g. v0.45.2 = 45
 
 
-if [ ${GITMAJOR} -lt ${NWJSMAJOR} ]; then
+echo "Compare ${GITMAJOR} -lt ${NWJSMAJOR}"
+if [[ ${GITMAJOR} -lt ${NWJSMAJOR} ]]; then
     GITBRANCH=browser${NWJSMAJOR}_dev
     git checkout -b ${GITBRANCH}
-
-    RETVAL=$?
-    if [ $RETVAL -ne 0 ]; then
-	echo "Checking out ${GITBRANCH} has been unsuccesfull"
-	exit $RETVAL
-    fi
 fi
 
 echo "Removing previous versions..."
 
 #remove previous versions
-find ./ -maxdepth 1 -type d -print | grep -E "v[0-9]\.[0-9]+\.[0-9]+$" | xargs -d $'\n' sh -c 'for arg do git rm -r --cached $arg; rm -rf $arg; done' _
+
+XARGSCOMMAND="xargs -d $'\n'"
+if [[ $OSTYPE == "darwin"* ]]; then
+    XARGSCOMMAND="xargs -n1"
+fi
+find ./ -maxdepth 1 -type d -print | grep -E "v[0-9]\.[0-9]+\.[0-9]+$" | ${XARGSCOMMAND} sh -c 'for arg do git rm -r --cached $arg; rm -rf $arg; done' _
 
 echo "Unzipping ${ARTIFACT} ..."
 tar xfz ${ARTIFACT}
 
 RETVAL=$?
-if [ $RETVAL -ne 0 ]; then
+if [[ $RETVAL -ne 0 ]]; then
     echo "Unzipping ${ARTIFACT} has been unsuccesfull"
     exit $RETVAL
 fi
