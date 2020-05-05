@@ -10,7 +10,7 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 git remote set-url origin git@gitlab.seznam.net:sbrowser/software/core-nw.git
 
 SEDCOMMAND="sed -rn"
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [[ $OSTYPE == "darwin"* ]]; then
     SEDCOMMAND="sed -En"
 fi
 
@@ -93,7 +93,7 @@ echo "Copying ${SCRIPTDIR}/args.gn to build destination..."
 cp ${SCRIPTDIR}/args.gn out/nw/ #nwjs build config
 
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
+if [[ $OSTYPE == "darwin"* ]]; then
     sed -i '' 's/Seznam\.cz/nwjs/g' chrome/app/chromium_strings.grd
     sed -i '' 's/Seznam\.cz/nwjs/g' chrome/app/theme/chromium/BRANDING
 fi
@@ -103,9 +103,9 @@ gn gen out/nw #create ninja files needed to build nwjs
 
 echo "Generating node gyp files..."
 GYPS=""
-if [[ "$OSTYPE" == "linux-gnu" ]]; then
+if [[ $OSTYPE == "linux-gnu" ]]; then
     GYPS="host_arch=x64 target_arch=x64"
-elif [[ "$OSTYPE" == "darwin"* ]]; then
+elif [[ $OSTYPE == "darwin"* ]]; then
     GYPS="host_arch=x64 target_arch=x64 nwjs_sdk=1 mac_breakpad=1 symbol_level=0 fastbuild=1 buildtype=Official"
 fi
 

@@ -28,17 +28,22 @@ Build Linux:
 
 Build MacOS:
   before_script:
-    - build/lin/init.sh
+    - build/osx/init.sh
   stage: build
   script:
     - cd ../..
     - ninja -C out/nw nwjs
     - ninja -C out/Release node
     - ninja -C out/nw copy_node
+    - content/nw/build/osx/cp_binaries.sh out/nw -d content/nw --target ${CI_BUILD_REF_NAME}
   tags:
     - nwjs-builder-mac
   only:
     - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  artifacts:
+    name: "${CI_BUILD_REF_NAME}"
+    paths:
+      - ./${CI_BUILD_REF_NAME}.tar.gz
 
 Deploy Linux:
   stage: deploy
@@ -51,3 +56,17 @@ Deploy Linux:
     - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
   dependencies:
     - Build Linux
+
+Deploy MacOS:
+  stage: deploy
+  script:
+    - build/osx/deploy.sh ${CI_BUILD_REF_NAME}.tar.gz
+  tags:
+    - nwjs-builder-mac
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  dependencies:
+    - Build MacOS
+
+
+
