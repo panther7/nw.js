@@ -50,7 +50,7 @@ fi
 
 cd $SOURCE_DIR
 #get the last tag of browser-v0.xy.wv+szn.z form and pick `v0.xy.vw`
-LATEST_VERSION=`git describe --abbrev=0 | ${SEDCOMMAND} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'`
+LATEST_VERSION=`git describe --tags | ${SEDCOMMAND} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'`
 
 #'s/.*\(v[0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p'`
 cd -
