@@ -37,7 +37,7 @@ Build MacOS:
     - ninja -C out/nw copy_node
     - content/nw/build/osx/cp_binaries.sh out/nw -d content/nw --target ${CI_BUILD_REF_NAME}
   tags:
-    - nwjs-builder-mac
+    - sbrowser-mac
   only:
     - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
   artifacts:

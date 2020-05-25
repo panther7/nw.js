@@ -8,7 +8,10 @@ fi
 RETVAL=0
 
 GITTAG=`git describe --tags`
-MESSAGE=`git tag ${GITTAG} -n1 | cut -d' ' -f 2-`
+TITLE_MESSAGE=`git tag ${GITTAG} -n1 | cut -d' ' -f 2-`
+BODY_MESSAGE="${CI_COMMIT_SHORT_SHA}: ${CI_COMMIT_MESSAGE}
+ - branch: ${CI_COMMIT_REF_NAME}
+ - url: ${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA}"
 
 SRC_REPO=${PWD}
 
@@ -109,7 +112,7 @@ GITREMOTE=`git remote -v | grep fetch | cut -f 2 | cut -d' ' -f 1`
 echo "Pushing into ${GITREMOTE}"
 
 git add ${NWJSTAG}
-git commit -m"${MESSAGE}"
+git commit -m"${TITLE_MESSAGE}" -m"${BODY_MESSAGE}"
 git push origin ${GITBRANCH}
 
-echo -e "\e[32mDone uploading artifact!\e[39m)"
+echo -e "\033[0;32mDone uploading artifact!\033[0;37m"
