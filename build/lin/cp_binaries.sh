@@ -123,4 +123,4 @@ tar cfz ${TARGET_NAME}.tar.gz ${LATEST_VERSION} #create zipped artifact
 
 rm -rf ${LATEST_VERSION} #get rid of temporary directory
 
-echo -e "\e[32mDone creating the artifact!\e[39m"
+echo -e "\033[0;32mDone creating the artifact!\033]0;37m"

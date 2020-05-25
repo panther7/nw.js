@@ -15,14 +15,14 @@ if [[ $OSTYPE == "darwin"* ]]; then
 fi
 
 GITTAG=`git describe --tags`
-echo -e "\e[36mtag: \e[39m${GITTAG}"
+echo -e "\033[0;36mtag: \033[0;37m${GITTAG}"
 GITHASH=`git rev-parse HEAD`
 GITBRANCH=`git ls-remote --heads origin | grep ${GITHASH} | cut -d '/' -f 3`
-echo -e "\e[36mbranch: \e[39m${GITBRANCH}"
+echo -e "\033[0;36mbranch: \033[0;37m${GITBRANCH}"
 NWJSMAJOR=`echo ${GITTAG} | ${SEDCOMMAND} 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g v0.45.2 = 45
-echo -e "\e[36mversion: \e[39m${NWJSMAJOR}"
+echo -e "\033[0;36mversion: \033[0;37m${NWJSMAJOR}"
 GITREMOTE=`git remote -v | grep fetch | cut -f 2 | cut -d' ' -f 1`
-echo -e "\e[36mremote: \e[39m${GITREMOTE}"
+echo -e "\033[0;36mremote: \033[0;37m${GITREMOTE}"
 
 echo "Fetching..."
 git fetch --depth=1
@@ -111,7 +111,7 @@ fi
 
 GYP_DEFINES=${GYPS} GYP_CHROMIUM_NO_ACTION=0 ./build/gyp_chromium -I third_party/node-nw/common.gypi -D building_nw=1 third_party/node-nw/node.gyp #create gyp files needed to build custom node
 
-echo -e "\e[32mDone initialization! \e[39m"
+echo -e "\033[0;32mDone initialization! \033[0;37m"
 
 
 
