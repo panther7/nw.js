@@ -42,8 +42,15 @@ if [ ! -d "v8" ]; then
     git clone https://github.com/nwjs/v8
 fi
 cd v8
+
 git checkout nw${NWJSMAJOR}-log
-cd ../third_party
+
+cd ..
+if [[ ! -d third_party ]]; then
+    mkdir -p third_party
+fi
+
+cd third_party
 if [ ! -d "node-nw" ]; then
     git clone https://github.com/nwjs/node node-nw
 fi
@@ -74,6 +81,10 @@ if [ -d "${CHROMIUMSRC}/third_party/icu" ]; then
 fi
 if [ -d "${CHROMIUMSRC}/third_party/perfetto" ]; then
     cd ${CHROMIUMSRC}/third_party/perfetto
+    git reset --hard
+fi
+if [ -d "${CHROMIUMSRC}/third_party/devtools-frontend/src" ]; then
+    cd ${CHROMIUMSRC}/third_party/devtools-frontend/src
     git reset --hard
 fi
 
