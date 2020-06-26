@@ -4,12 +4,13 @@ stages:
 
 variables:
   GIT_STRATEGY: fetch
-  GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
 
 Build Linux:
   before_script:
     - build/lin/init.sh
   stage: build
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
   script:
     - cd ../..
     - ninja -C out/nw nwjs
@@ -30,6 +31,8 @@ Build MacOS:
   before_script:
     - build/osx/init.sh
   stage: build
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
   script:
     - cd ../..
     - ninja -C out/nw nwjs
@@ -45,8 +48,21 @@ Build MacOS:
     paths:
       - ./${CI_BUILD_REF_NAME}.tar.gz
 
+Build Windows:
+  stage: build
+  script:
+    - build/win/pt1_build.bat
+    - build/win/pt2_build.bat
+    - build/win/pt3_build.bat
+  tags:
+    - sbrowser-win
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+
 Deploy Linux:
   stage: deploy
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
   script:
     - build/lin/deploy.sh ${CI_BUILD_REF_NAME}.tar.gz
   tags:
@@ -59,6 +75,8 @@ Deploy Linux:
 
 Deploy MacOS:
   stage: deploy
+  variables:
+    GIT_CLONE_PATH: ${CI_BUILDS_DIR}/src/content/nw
   script:
     - build/osx/deploy.sh ${CI_BUILD_REF_NAME}.tar.gz
   tags:
