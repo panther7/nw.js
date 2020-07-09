@@ -9,5 +9,5 @@ is_official_build=false
 enable_widevine=true
 symbol_level=0
 clang_use_chrome_plugins=false
-remove_webcore_debig_sumbols=true
-google_api_key="AIzaSyDNm5jc9OlE3TEcRKaczAraY-II0XMGi6g"
+remove_webcore_debug_symbols=true
+google_api_key="{_GAK_}"

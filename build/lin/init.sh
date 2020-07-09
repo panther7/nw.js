@@ -9,9 +9,11 @@ SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 #gitlab-ci clones repos under generated tokens, which needs to be replaced in order to satisfy gclient
 git remote set-url origin git@gitlab.seznam.net:sbrowser/software/core-nw.git
 
-SEDCOMMAND="sed -rn"
+SEDCOMMANDE=(-rn)
+SEDCOMMANDI=(-i)
 if [[ $OSTYPE == "darwin"* ]]; then
-    SEDCOMMAND="sed -En"
+    SEDCOMMANDE=(-En)
+    SEDCOMMANDI=(-i '' -e) # the f***g space between `-i' and '' is important
 fi
 
 GITTAG=`git describe --tags`
@@ -19,7 +21,7 @@ echo -e "\033[0;36mtag: \033[0;37m${GITTAG}"
 GITHASH=`git rev-parse HEAD`
 GITBRANCH=`git ls-remote --heads origin | grep ${GITHASH} | cut -d '/' -f 3`
 echo -e "\033[0;36mbranch: \033[0;37m${GITBRANCH}"
-NWJSMAJOR=`echo ${GITTAG} | ${SEDCOMMAND} 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g v0.45.2 = 45
+NWJSMAJOR=`echo ${GITTAG} | sed "${SEDCOMMANDE[@]}" 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g v0.45.2 = 45
 echo -e "\033[0;36mversion: \033[0;37m${NWJSMAJOR}"
 GITREMOTE=`git remote -v | grep fetch | cut -f 2 | cut -d' ' -f 1`
 echo -e "\033[0;36mremote: \033[0;37m${GITREMOTE}"
@@ -88,11 +90,14 @@ if [ -d "${CHROMIUMSRC}/third_party/devtools-frontend/src" ]; then
     git reset --hard
 fi
 
-#gclient is running outside the `src' directory
+# unlock possibly stuck git repos
+find ${NWJSSRC} -name "index.lock" -delete
+
+# gclient is running outside the `src' directory
 cd ${NWJSSRC}
 gclient sync --with_branch_heads #sync all remaining dependencies (and patch them)
 
-#get back to the original commit
+# get back to the original commit
 cd ${CHROMIUMSRC}
 git fetch --depth=1
 git checkout ${GITTAG}
@@ -103,10 +108,13 @@ mkdir -p out/nw out/Release #build directories and a sandpit for build configura
 echo "Copying ${SCRIPTDIR}/args.gn to build destination..."
 cp ${SCRIPTDIR}/args.gn out/nw/ #nwjs build config
 
+# Google API key has to be located at runner's HOME path
+sed "${SEDCOMMANDI[@]}" "s|{_GAK_}|$(cat ${HOME}/.google_api_key)|g" out/nw/args.gn
+
 
 if [[ $OSTYPE == "darwin"* ]]; then
-    sed -i '' 's/Seznam\.cz/nwjs/g' chrome/app/chromium_strings.grd
-    sed -i '' 's/Seznam\.cz/nwjs/g' chrome/app/theme/chromium/BRANDING
+    sed "${SEDCOMMANDI[@]}" 's/Seznam\.cz/nwjs/g' chrome/app/chromium_strings.grd
+    sed "${SEDCOMMANDI[@]}" 's/Seznam\.cz/nwjs/g' chrome/app/theme/chromium/BRANDING
 fi
 
 echo "Generating essential build files..."

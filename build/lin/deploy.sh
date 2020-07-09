@@ -78,8 +78,7 @@ fi
 NWJSTAG=`echo ${ARTIFACT} | ${SEDCOMMAND} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'` #e.g. browser-v0.45.2+szn.1 = v0.45.2
 NWJSMAJOR=`echo ${NWJSTAG} | ${SEDCOMMAND} 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g. v0.45.2 = 45
 
-
-echo "Compare ${GITMAJOR} -lt ${NWJSMAJOR}"
+echo -e "\033[0;36mCompare ${GITMAJOR} -lt ${NWJSMAJOR}\033[0;37m"
 if [[ ${GITMAJOR} -lt ${NWJSMAJOR} ]]; then
     GITBRANCH=browser${NWJSMAJOR}_dev
     git checkout -b ${GITBRANCH}
@@ -88,12 +87,11 @@ fi
 echo "Removing previous versions..."
 
 #remove previous versions
-
-XARGSCOMMAND="xargs -d $'\n'"
+XARGSCOMMAND=(-d '\n')
 if [[ $OSTYPE == "darwin"* ]]; then
-    XARGSCOMMAND="xargs -n1"
+    XARGSCOMMAND=(-n1)
 fi
-find ./ -maxdepth 1 -type d -print | grep -E "v[0-9]\.[0-9]+\.[0-9]+$" | ${XARGSCOMMAND} sh -c 'for arg do git rm -r --cached $arg; rm -rf $arg; done' _
+find ./ -maxdepth 1 -type d -print | grep -E "v[0-9]\.[0-9]+\.[0-9]+$" | xargs "${XARGSCOMMAND[@]}" sh -c 'for arg do echo -e "\033[0;95m removing: $arg\033[0;37m"; git rm -r --cached $arg; rm -rf $arg; done' _
 
 echo "Unzipping ${ARTIFACT} ..."
 tar xfz ${ARTIFACT}

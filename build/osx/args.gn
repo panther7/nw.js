@@ -13,4 +13,4 @@ enable_dsyms=true
 enable_precompiled_headers=false
 symbol_level=0
 clang_use_chrome_plugins=false
-google_api_key="AIzaSyDNm5jc9OlE3TEcRKaczAraY-II0XMGi6g"
+google_api_key="{_GAK_}"
