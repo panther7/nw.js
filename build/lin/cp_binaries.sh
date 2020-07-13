@@ -43,14 +43,15 @@ else
     exit 255
 fi
 
-SEDCOMMAND="sed -rn"
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    SEDCOMMAND="sed -En"
+
+SEDCOMMANDE=(-rn)
+if [[ $OSTYPE == "darwin"* ]]; then
+    SEDCOMMANDE=(-En)
 fi
 
 cd $SOURCE_DIR
 #get the last tag of browser-v0.xy.wv+szn.z form and pick `v0.xy.vw`
-LATEST_VERSION=`git describe --tags | ${SEDCOMMAND} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'`
+LATEST_VERSION=`echo ${TARGET_NAME} | sed ${SEDCOMMANDE[@]} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'`
 
 #'s/.*\(v[0-9]\+\.[0-9]\+\.[0-9]\+\).*/\1/p'`
 cd -
@@ -111,10 +112,6 @@ if [[ $OSTYPE == "darwin"* ]]; then
     cp -af ${WIDEVINE_DIR} "${OUT_DIR}/nwjs.app/Contents/Frameworks/nwjs Framework.framework/Libraries/"
 else
     cp -af ${WIDEVINE_DIR} ${OUT_DIR}
-fi
-
-if [[ -z ${TARGET_NAME} ]]; then
-    TARGET_NAME="nwjs-${LATEST_VERSION}"
 fi
 
 echo "Zipping... ${LATEST_VERSION} to ${TARGET_NAME}.tar.gz (in ${OUT_DIR}/..)"

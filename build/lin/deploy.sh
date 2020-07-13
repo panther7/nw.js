@@ -1,8 +1,10 @@
 #!/bin/bash
 
-SEDCOMMAND="sed -rn"
+set -e
+
+SEDCOMMANDE=(-rn)
 if [[ $OSTYPE == "darwin"* ]]; then
-    SEDCOMMAND="sed -En"
+    SEDCOMMANDE=(-En)
 fi
 
 RETVAL=0
@@ -59,7 +61,7 @@ fi
 
 GITHASH=`git rev-parse HEAD`
 GITBRANCH=`git ls-remote --heads origin | grep ${GITHASH} | cut -d '/' -f 3` #browser45_dev
-GITMAJOR=`echo ${GITBRANCH} | ${SEDCOMMAND} 's|browser([0-9]+)_dev|\1|p'`
+GITMAJOR=`echo ${GITBRANCH} | sed ${SEDCOMMANDE[@]} 's|browser([0-9]+)_dev|\1|p'`
 
 if [[ ${ARTIFACT} == "/*" ]]; then
     cp ${ARTIFACT} ./
@@ -75,8 +77,8 @@ if [[ $RETVAL -ne 0 ]]; then
     exit $RETVAL
 fi
 
-NWJSTAG=`echo ${ARTIFACT} | ${SEDCOMMAND} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'` #e.g. browser-v0.45.2+szn.1 = v0.45.2
-NWJSMAJOR=`echo ${NWJSTAG} | ${SEDCOMMAND} 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g. v0.45.2 = 45
+NWJSTAG=`echo ${ARTIFACT} | sed ${SEDCOMMANDE[@]} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+).*|\1|p'` #e.g. browser-v0.45.2+szn.1 = v0.45.2
+NWJSMAJOR=`echo ${NWJSTAG} | sed ${SEDCOMMANDE[@]} 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g. v0.45.2 = 45
 
 echo -e "\033[0;36mCompare ${GITMAJOR} -lt ${NWJSMAJOR}\033[0;37m"
 if [[ ${GITMAJOR} -lt ${NWJSMAJOR} ]]; then
@@ -91,6 +93,9 @@ XARGSCOMMAND=(-d '\n')
 if [[ $OSTYPE == "darwin"* ]]; then
     XARGSCOMMAND=(-n1)
 fi
+
+echo "Removing old versions in $PWD"
+
 find ./ -maxdepth 1 -type d -print | grep -E "v[0-9]\.[0-9]+\.[0-9]+$" | xargs "${XARGSCOMMAND[@]}" sh -c 'for arg do echo -e "\033[0;95m removing: $arg\033[0;37m"; git rm -r --cached $arg; rm -rf $arg; done' _
 
 echo "Unzipping ${ARTIFACT} ..."
