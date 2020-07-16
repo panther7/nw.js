@@ -8,5 +8,8 @@ xcopy WidevineCdm C:\nwjs\build\WidevineCdm /s /e
 
 cd C:\nwjs
 call env\Scripts\activate
+
 python build\nw_build.py build\config.yaml pt1_build
+if %errorlevel% NEQ 0 exit /b %errorlevel%
+
 call deactivate
