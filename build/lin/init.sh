@@ -45,7 +45,7 @@ if [ ! -d "v8" ]; then
 fi
 cd v8
 
-git checkout nw${NWJSMAJOR}-log
+git checkout nw${NWJSMAJOR}
 
 cd ..
 if [[ ! -d third_party ]]; then
@@ -57,7 +57,7 @@ if [ ! -d "node-nw" ]; then
     git clone https://github.com/nwjs/node node-nw
 fi
 cd node-nw
-git checkout nw${NWJSMAJOR}-log
+git checkout nw${NWJSMAJOR}
 
 cd ${CHROMIUMSRC}/..
 NWJSSRC=${PWD}
@@ -87,6 +87,10 @@ if [ -d "${CHROMIUMSRC}/third_party/perfetto" ]; then
 fi
 if [ -d "${CHROMIUMSRC}/third_party/devtools-frontend/src" ]; then
     cd ${CHROMIUMSRC}/third_party/devtools-frontend/src
+    git reset --hard
+fi
+if [ -d "${CHROMIUMSRC}/third_party/angle/third_party/vulkan-loader/src" ]; then
+    cd ${CHROMIUMSRC}/third_party/angle/third_party/vulkan-loader/src
     git reset --hard
 fi
 

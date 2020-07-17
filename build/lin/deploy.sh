@@ -69,6 +69,9 @@ GITHASH=`git rev-parse HEAD`
 GITBRANCH=`git ls-remote --heads origin | grep ${GITHASH} | cut -d '/' -f 3` #browser45_dev
 GITMAJOR=`echo ${GITBRANCH} | sed ${SEDCOMMANDE[@]} 's|browser([0-9]+)_dev|\1|p'`
 
+git fetch -p --all
+git checkout origin/${GITBRANCH}
+
 if [[ ${ARTIFACT} == "/*" ]]; then
     cp ${ARTIFACT} ./
     ARTIFACT=$(basename ${ARTIFACT})
@@ -87,7 +90,7 @@ NWJSTAG=`echo ${ARTIFACT} | sed ${SEDCOMMANDE[@]} 's|.*(v[0-9]+\.[0-9]+\.[0-9]+)
 NWJSMAJOR=`echo ${NWJSTAG} | sed ${SEDCOMMANDE[@]} 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g. v0.45.2 = 45
 
 if [[ -z ${GITMAJOR} ]]; then
-    echo -E "\033[0;31m NWjs-build-* repository seems to be inconsistent. Please fix it manually. \033[0;37m"
+    echo -e "\033[0;31m NWjs-build-* repository seems to be inconsistent. Please fix it manually. \033[0;37m"
     exit 1
 fi
 
