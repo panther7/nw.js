@@ -65,8 +65,7 @@ if [[ $RETVAL -ne 0 ]]; then
     exit $RETVAL
 fi
 
-GITHASH=`git rev-parse HEAD`
-GITBRANCH=`git ls-remote --heads origin | grep ${GITHASH} | cut -d '/' -f 3` #browser45_dev
+GITBRANCH=`git ls-remote --heads origin | cut -d '/' -f 3 | grep browser | tail -n 1` #browser45_dev
 GITMAJOR=`echo ${GITBRANCH} | sed ${SEDCOMMANDE[@]} 's|browser([0-9]+)_dev|\1|p'`
 
 git fetch -p --all
