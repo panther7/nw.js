@@ -42,25 +42,22 @@ fi
 echo "Cloning prerequisities..."
 if [ ! -d "v8" ]; then
     git clone https://github.com/nwjs/v8
-else
-    git fetch -p --all
 fi
 cd v8
-
+git fetch -p --all
 git checkout origin/nw${NWJSMAJOR}
 
 cd ..
 if [[ ! -d third_party ]]; then
     mkdir -p third_party
 fi
-
 cd third_party
+
 if [ ! -d "node-nw" ]; then
     git clone https://github.com/nwjs/node node-nw
-else
-    git fetch -p --all
 fi
 cd node-nw
+git fetch -p --all
 git checkout origin/nw${NWJSMAJOR}
 
 cd ${CHROMIUMSRC}/..
