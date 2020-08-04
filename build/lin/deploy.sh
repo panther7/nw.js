@@ -69,7 +69,8 @@ GITBRANCH=`git ls-remote --heads origin | cut -d '/' -f 3 | grep browser | tail 
 GITMAJOR=`echo ${GITBRANCH} | sed ${SEDCOMMANDE[@]} 's|browser([0-9]+)_dev|\1|p'`
 
 git fetch -p --all
-git checkout origin/${GITBRANCH}
+git checkout -B ${GITBRANCH} --track origin/${GITBRANCH}
+git pull -f --rebase
 
 if [[ ${ARTIFACT} == "/*" ]]; then
     cp ${ARTIFACT} ./
@@ -95,8 +96,10 @@ fi
 
 echo -e "\033[0;36mCompare ${GITMAJOR} -lt ${NWJSMAJOR}\033[0;37m"
 if [[ ${GITMAJOR} -lt ${NWJSMAJOR} ]]; then
+    GITBRANCH_OLD=${GITBRANCH}
     GITBRANCH=browser${NWJSMAJOR}_dev
-    git checkout -b ${GITBRANCH}
+    git checkout -B ${GITBRANCH}
+    git branch -D ${GITBRANCH_OLD}
 fi
 
 echo "Removing previous versions..."
