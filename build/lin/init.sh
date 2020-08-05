@@ -38,6 +38,13 @@ if [[ -d ".git" ]]; then
     git reset --hard
 fi
 
+#find revisions for v8 & node-nw
+echo "Obtaining revisions of v8 and node-nw..."
+NW_NODE_REV=$(cat content/nw/DEPS |grep "'nw_node_revision':" | cut -d : -f 2 | cut -d \' -f 2)
+echo -e "\033[0;36mnw_node_revision: \033[0;37m${NW_NODE_REV}"
+NW_V8_REV=$(cat content/nw/DEPS |grep "'nw_v8_revision':" | cut -d : -f 2 | cut -d \' -f 2)
+echo -e "\033[0;36mnw_v8_revision: \033[0;37m${NW_V8_REV}"
+
 #cloning is a MUST, becuase depot_tools search for .git/index in it
 echo "Cloning prerequisities..."
 if [ ! -d "v8" ]; then
@@ -45,7 +52,7 @@ if [ ! -d "v8" ]; then
 fi
 cd v8
 git fetch -p --all
-git checkout origin/nw${NWJSMAJOR}
+git checkout ${NW_V8_REV}
 
 cd ..
 if [[ ! -d third_party ]]; then
@@ -58,7 +65,7 @@ if [ ! -d "node-nw" ]; then
 fi
 cd node-nw
 git fetch -p --all
-git checkout origin/nw${NWJSMAJOR}
+git checkout ${NW_NODE_REV}
 
 cd ${CHROMIUMSRC}/..
 NWJSSRC=${PWD}
