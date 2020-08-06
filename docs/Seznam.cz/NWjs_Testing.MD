@@ -7,7 +7,6 @@ For automated testing we use Selenium tools.
 
 See test list below.
 
-- certificate_fix
 - default_browser
 - download_id
 - flags_settings
@@ -33,7 +32,6 @@ See commit vs. test dependencies table below.
 |  SRC   ||  Webview navigation history getter.         |  history                          |
 |  SRC   ||  Event `targeturlupdate` with `targetUrl`   |  target_url_update                |
 |  SRC   ||  On title and favicon change event on web   |  title_favicon_event              |
-|  SRC   ||  Certificate fix: -Webview now has: --Att   |  certificate_fix                  |
 |  SRC   ||  PartitionId added to options in chrome.d   |  download_id                      |
 |  SRC   ||  'sslchange' event on webview is invoked    |  ssl_change                       |
 |  SRC   ||  Allow create webview in new process. -At   |  process_for_webview              |
