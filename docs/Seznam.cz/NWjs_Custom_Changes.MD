@@ -25,8 +25,8 @@ To apply specific changes to current branch, we cherry-picks single commits from
 | Chrome-like page is hidden | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/96a3aa18b8610845fbf6b331ce232dfca20f6916) | `N/A` | [NWjs_Custom_Changes](#chrome-like-page-is-hidden) | No |
 | Occasional crash with permission requests | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/978ce13769b601de9657f54bb4a14f4eb43f7467) | `N/A` | [NWjs_Custom_Changes](#occasional-crash-with-permission-requests) | No |
 | Partition ID to identify download | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/668e0113c6b008e5ce309dd184710615deb25ac4) | `N/A` | [NWjs_Custom_Changes](#partition-id-to-identify-download) | [NWjs_Testing](NWjs_Testing.MD#run-nwjs-tests) |
-| Certificate fix | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/45075cbfd5ca9d15c439edb7c574c054f433185d) | `N/A` | [NWjs_Custom_Changes](#certificate-fix) | [NWjs_Testing](NWjs_Testing.MD#run-nwjs-tests) |
-| Always use automatic certificate handling | [v0.43.6](https://github.com/michalvasek/chromium.src/commit/26ab6e41175399ba1b4d310f7992dc7b13f9f485) | `N/A` | [NWjs_Custom_Changes](#always-use-automatic-certificate-handling) | [NWjs_Testing](NWjs_Testing.MD#run-nwjs-tests) |
+| Certificate fix | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/45075cbfd5ca9d15c439edb7c574c054f433185d) | `N/A` | [NWjs_Custom_Changes](#certificate-fix) | No |
+| Always use automatic certificate handling | [v0.43.6](https://github.com/michalvasek/chromium.src/commit/26ab6e41175399ba1b4d310f7992dc7b13f9f485) | `N/A` | [NWjs_Custom_Changes](#always-use-automatic-certificate-handling) | No |
 | Occasional new windows crash from javascript on click | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/2e3a7cb7a600cc457aa726be23e91e789bd8877d) | `N/A` | [NWjs_Custom_Changes](#occasional-new-windows-crash-from-javascript-on-click) | No |
 | On title and favicon change event | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/c1e61d7ad68a08c9504f7186827d0fc2283d4d2c) | `N/A` | [NWjs_Custom_Changes](#on-title-and-favicon-change-event) | [NWjs_Testing](NWjs_Testing.MD#run-nwjs-tests) |
 | Show certificate details | [v0.43.2](https://github.com/michalvasek/chromium.src/commit/1c34a660d8099728bb3735504545458a578abf4c) | `N/A` | [NWjs_Custom_Changes](#show-certificate-details) | No |
@@ -571,15 +571,20 @@ Do not show Chrome login dialog after sBrowser login dialog.
 
 **Commit message**
   ```
-Cancel login dialog
-
-- Do not show Chrome login prompt for requested URL
-- Call CancelAuth() function
+  Cancel login dialog
+  
+  - Do not show Chrome login prompt for requested URL
+  - Call CancelAuth() function
   ```
 
 ### Custom AppUserModelId from package.json
 
 Automatically sets specific AppUserModelId for every browser window. The Id is specified in file `package.json` and variable `name`. If file or variable doesn’t exist, default id is used.
+
+**Commit message**
+  ```
+  Custom AppUserModelId from package.json
+  ```
 
 ### Seznam suffix in version
 
