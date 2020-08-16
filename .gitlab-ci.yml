@@ -1,5 +1,6 @@
 stages:
   - build
+  - test
   - deploy
 
 variables:
@@ -58,6 +59,17 @@ Build Windows:
   only:
     - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
 
+Test Windows:
+  stage: test
+  script:
+    - build/win/pt3_test.bat
+  tags:
+    - sbrowser-win
+  only:
+    - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
+  needs:
+    - Build Windows
+
 Deploy Linux:
   stage: deploy
   variables:
@@ -88,10 +100,10 @@ Deploy MacOS:
 Deploy Windows:
   stage: deploy
   script:
-    - build/win/pt3_deploy.bat
+    - build/win/pt4_deploy.bat
   tags:
     - sbrowser-win
   only:
     - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
   needs:
-    - Build Windows
+    - Test Windows
