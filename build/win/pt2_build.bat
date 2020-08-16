@@ -1,8 +1,6 @@
 REM Build nwjs files
 cd C:\nwjs\src
 if %errorlevel% neq 0 exit /b %errorlevel%
-call ninja -C out/nw -t clean
-if %errorlevel% neq 0 exit /b %errorlevel%
 call ninja -C out/nw nwjs
 if %errorlevel% neq 0 exit /b %errorlevel%
 
