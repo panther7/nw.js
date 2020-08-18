@@ -63,6 +63,7 @@ Test Windows:
   stage: test
   script:
     - build/win/pt3_test.bat
+    - build/win/pt4_test.bat
   tags:
     - sbrowser-win
   only:
@@ -100,7 +101,7 @@ Deploy MacOS:
 Deploy Windows:
   stage: deploy
   script:
-    - build/win/pt4_deploy.bat
+    - build/win/pt5_deploy.bat
   tags:
     - sbrowser-win
   only:

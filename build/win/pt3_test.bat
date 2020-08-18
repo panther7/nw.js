@@ -1,4 +1,3 @@
-REM Third portion of python scripts in virtual environment (Python 3)
 @echo off
 
 cd C:\nwjs
