@@ -17,17 +17,17 @@ if [[ $OSTYPE == "darwin"* ]]; then
 fi
 
 GITTAG=`git describe --tags`
-echo -e "\033[0;36mtag: \033[0;37m${GITTAG}"
+echo -e "\033[0;36mtag: \033[0;0m${GITTAG}"
 GITHASH=`git rev-parse HEAD`
 GITBRANCH=`git ls-remote --heads origin | grep ${GITHASH} | cut -d '/' -f 3`
-echo -e "\033[0;36mbranch: \033[0;37m${GITBRANCH}"
+echo -e "\033[0;36mbranch: \033[0;0m${GITBRANCH}"
 NWJSMAJOR=`echo ${GITTAG} | sed "${SEDCOMMANDE[@]}" 's|.*v[0-9]+\.([0-9]+)\.[0-9]+.*|\1|p'` #e.g v0.45.2 = 45
-echo -e "\033[0;36mversion: \033[0;37m${NWJSMAJOR}"
+echo -e "\033[0;36mversion: \033[0;0m${NWJSMAJOR}"
 GITREMOTE=`git remote -v | grep fetch | cut -f 2 | cut -d' ' -f 1`
-echo -e "\033[0;36mremote: \033[0;37m${GITREMOTE}"
+echo -e "\033[0;36mremote: \033[0;0m${GITREMOTE}"
 
 echo "Fetching..."
-git fetch --depth=1
+git fetch --depth=1 --tags -f
 git checkout --track origin/${GITBRANCH} 2>/dev/null #make sure it's tracking the upstream branch for gclient's sake
 
 cd ../.. #get on top of `content/nw'
@@ -41,9 +41,9 @@ fi
 #find revisions for v8 & node-nw
 echo "Obtaining revisions of v8 and node-nw..."
 NW_NODE_REV=$(cat content/nw/DEPS |grep "'nw_node_revision':" | cut -d : -f 2 | cut -d \' -f 2)
-echo -e "\033[0;36mnw_node_revision: \033[0;37m${NW_NODE_REV}"
+echo -e "\033[0;36mnw_node_revision: \033[0;0m${NW_NODE_REV}"
 NW_V8_REV=$(cat content/nw/DEPS |grep "'nw_v8_revision':" | cut -d : -f 2 | cut -d \' -f 2)
-echo -e "\033[0;36mnw_v8_revision: \033[0;37m${NW_V8_REV}"
+echo -e "\033[0;36mnw_v8_revision: \033[0;0m${NW_V8_REV}"
 
 #cloning is a MUST, becuase depot_tools search for .git/index in it
 echo "Cloning prerequisities..."
@@ -74,7 +74,7 @@ echo "Copying gclient config from ${SCRIPTDIR}/.gclient ..."
 cp ${SCRIPTDIR}/.gclient ./ #config of gclient
 
 #echo "Reset gclient config on top of source..."
-sed -i -e "s|{1}|${GITBRANCH}|g" ./.gclient #replace {1} with current branch to sync onto
+sed "${SEDCOMMANDI[@]}" "s|{1}|${GITBRANCH}|g" ./.gclient #replace {1} with current branch to sync onto
 
 echo "Restore patches if they exist..." #this is needed as long as gclient scripts fail over that
 if [ -d "${CHROMIUMSRC}/third_party/webdriver/pylib" ]; then
@@ -111,7 +111,7 @@ gclient sync --with_branch_heads #sync all remaining dependencies (and patch the
 
 # get back to the original commit
 cd ${CHROMIUMSRC}
-git fetch --depth=1
+git fetch --depth=1 --tags -f
 git checkout ${GITTAG}
 
 echo "Creating build paths..."
@@ -142,7 +142,7 @@ fi
 
 GYP_DEFINES=${GYPS} GYP_CHROMIUM_NO_ACTION=0 ./build/gyp_chromium -I third_party/node-nw/common.gypi -D building_nw=1 third_party/node-nw/node.gyp #create gyp files needed to build custom node
 
-echo -e "\033[0;32mDone initialization! \033[0;37m"
+echo -e "\033[0;32mDone initialization! \033[0;0m"
 
 
 
