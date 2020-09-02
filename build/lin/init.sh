@@ -120,8 +120,8 @@ mkdir -p out/nw out/Release #build directories and a sandpit for build configura
 echo "Copying ${SCRIPTDIR}/args.gn to build destination..."
 cp ${SCRIPTDIR}/args.gn out/nw/ #nwjs build config
 
-# Google API key has to be located at runner's HOME path
-sed "${SEDCOMMANDI[@]}" "s|{_GAK_}|$(cat ${HOME}/.google_api_key)|g" out/nw/args.gn
+# Google API key has to be located at gitlab variable
+sed "${SEDCOMMANDI[@]}" "s|{_GAK_}|$(echo ${GOOGLE_API_KEY})|g" out/nw/args.gn
 
 
 if [[ $OSTYPE == "darwin"* ]]; then
@@ -136,6 +136,9 @@ echo "Generating node gyp files..."
 GYPS=""
 if [[ $OSTYPE == "linux-gnu" ]]; then
     GYPS="host_arch=x64 target_arch=x64"
+elif [[ $OSTYPE == "msys" ]]; then
+    GYP_MSVS_VERSION=2017
+    GYPS="target_arch=ia32 icu_use_data_file_flag=1 clang=1 nwjs_sdk=1 disable_nacl=0"
 elif [[ $OSTYPE == "darwin"* ]]; then
     GYPS="host_arch=x64 target_arch=x64 nwjs_sdk=1 mac_breakpad=1 symbol_level=0 fastbuild=1 buildtype=Official"
 fi

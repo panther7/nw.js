@@ -1,0 +1,11 @@
+# See "gn args <out_dir> --list" for available build arguments.
+is_debug = false
+target_os = "win"
+target_cpu = "x86"
+proprietary_codecs = true
+is_component_ffmpeg = true
+ffmpeg_branding = "Chrome"
+is_component_build = false
+enable_widevine = true
+symbol_level = 2
+google_api_key="{_GAK_}"

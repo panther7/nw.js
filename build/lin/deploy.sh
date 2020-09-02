@@ -26,7 +26,9 @@ SRC_REPO=${PWD}
 echo "Deploying from ${SRC_REPO}"
 
 BIN_REPO=${HOME}/NWjs-build-linux
-if [[ $OSTYPE == "darwin"* ]]; then
+if [[ $OSTYPE == "msys" ]]; then
+    BIN_REPO=${HOME}/NWjs-build-win
+elif [[ $OSTYPE == "darwin"* ]]; then
     BIN_REPO=${HOME}/NWjs-build-mac
 fi
 

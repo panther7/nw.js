@@ -50,10 +50,17 @@ Build MacOS:
       - ./${CI_BUILD_REF_NAME}.tar.gz
 
 Build Windows:
+  before_script:
+    - build/win/init.sh
   stage: build
+  variables:
+    GIT_CLONE_PATH: /c/work/gitlab-runner/builds/src/content/nw
   script:
-    - build/win/pt1_build.bat
-    - build/win/pt2_build.bat
+    - cd ../..
+    - ninja -C out/nw nwjs
+    - ninja -C out/Release node
+    - ninja -C out/nw copy_node
+    - content/nw/build/win/cp_binaries.sh out/nw -d content/nw --target ${CI_BUILD_REF_NAME}
   tags:
     - sbrowser-win
   only:
