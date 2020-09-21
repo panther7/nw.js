@@ -107,4 +107,4 @@ Deploy Windows:
   only:
     - /^browser-v[0-9]+\.[0-9]+(?:\.[0-9]+)*\+szn\.[0-9]+$/
   needs:
-    - Test Windows
+    - Build Windows
