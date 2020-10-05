@@ -43,9 +43,6 @@ The name of the submit button used. Optional; only used in scoring of PasswordFo
 
 When parsing an HTML form, this must always be set.
 
-### has_renderer_ids
-True if renderer ids for username and password fields are present. Only set on form parsing, and not persisted.
-
 ### username_element
 The name of the username input element. Optional (improves scoring).
 
@@ -56,9 +53,6 @@ The renderer id of the username input element. It is set during the new form par
 
 ### username_may_use_prefilled_placeholder
 True if the server-side classification believes that the field may be pre-filled with a placeholder in the value attribute. It is set during form parsing and not persisted.
-
-### username_marked_by_site
-Whether the [username_element](#username_element) has an autocomplete=username attribute. This is only used in parsed HTML forms.
 
 ### username_value
 The username. Optional.
@@ -102,9 +96,6 @@ The renderer id of the confirmation password input element. It is set during the
 ### new_password_value
 The new password. Optional, and not persisted.
 
-### new_password_marked_by_site
-Whether the [new_password_element](#new_password_element) has an autocomplete=new-password attribute. This is only used in parsed HTML forms.
-
 ### preferred
 True if this PasswordForm represents the last username/password login the user selected to log in to the site. If there is only one saved entry for the site, this will always be true, but when there are multiple entries the PasswordManager ensures that only one of them has a preferred bit set to true. Default to false.
 
@@ -120,7 +111,7 @@ When the login was downloaded from the sync server. For local passwords is not u
 
 When parsing an HTML form, this is not used.
 
-### blacklisted_by_user
+### blocked_by_user
 Tracks if the user opted to never remember passwords for this form. Default to false.
 
 When parsing an HTML form, this is not used.

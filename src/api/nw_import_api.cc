@@ -239,10 +239,8 @@ void FillListValue(base::ListValue* values, const std::vector<autofill::Password
     dictionary->SetStringPath("app_display_name", form.app_display_name);
     dictionary->SetStringPath("app_icon_url", form.app_icon_url.spec());
     dictionary->SetStringPath("submit_element", form.submit_element);
-    dictionary->SetBoolPath("has_renderer_ids", form.has_renderer_ids);
     dictionary->SetStringPath("username_element", form.username_element);
     dictionary->SetBoolPath("username_may_use_prefilled_placeholder", form.username_may_use_prefilled_placeholder);
-    dictionary->SetBoolPath("username_marked_by_site", form.username_marked_by_site);
     dictionary->SetStringPath("username_value", form.username_value);
     AppendStringPairVector(dictionary, form.all_possible_usernames, "username_value", "username_element", "all_possible_usernames");
     AppendStringPairVector(dictionary, form.all_possible_passwords, "password_value", "password_element", "all_possible_passwords");
@@ -252,10 +250,9 @@ void FillListValue(base::ListValue* values, const std::vector<autofill::Password
     dictionary->SetStringPath("new_password_element", form.new_password_element);
     dictionary->SetStringPath("confirmation_password_element", form.confirmation_password_element);
     dictionary->SetStringPath("new_password_value", form.new_password_value);
-    dictionary->SetBoolPath("new_password_marked_by_site", form.new_password_marked_by_site);
     dictionary->SetDoublePath("date_created", form.date_created.ToJsTime());
     dictionary->SetDoublePath("date_synced", form.date_synced.ToJsTime());
-    dictionary->SetBoolPath("blacklisted_by_user", form.blacklisted_by_user);
+    dictionary->SetBoolPath("blacklisted_by_user", form.blocked_by_user);
     dictionary->SetIntPath("type", (int)form.type);
     dictionary->SetIntPath("times_used", form.times_used);
     AppendFormData(dictionary, form.form_data, "form_data");
@@ -830,14 +827,14 @@ bool InitOSCrypt(importer::ImporterType browser) {
   //      std::unique_ptr<os_crypt::Config> config);
 #endif  // defined(OS_LINUX) && !defined(OS_CHROMEOS)
 
-#if defined(OS_MACOSX) || (defined(OS_LINUX) && !defined(OS_CHROMEOS))
+#if defined(OS_MAC) || (defined(OS_LINUX) && !defined(OS_CHROMEOS))
   // On Linux returns true iff the real secret key (not hardcoded one) is
   // available. On MacOS returns true if Keychain is available (for mock
   // Keychain it returns true if not using locked Keychain, false if using
   // locked mock Keychain).
   //  static COMPONENT_EXPORT(OS_CRYPT) bool IsEncryptionAvailable();
   return OSCrypt::IsEncryptionAvailable();
-#endif  // defined(OS_MACOSX) || (defined(OS_LINUX) && !defined(OS_CHROMEOS))
+#endif  // defined(OS_MAC) || (defined(OS_LINUX) && !defined(OS_CHROMEOS))
 }
 
 ExtensionFunction::ResponseAction NwImportImportableItemsFunction::Run() {
