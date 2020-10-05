@@ -243,13 +243,11 @@ NwAppCrashBrowserFunction::Run() {
 ExtensionFunction::ResponseAction
 NwAppIsDefaultBrowserFunction::Run() {
   scoped_refptr<shell_integration::DefaultBrowserWorker> browserWorker(
-    new shell_integration::DefaultBrowserWorker(
-      base::Bind(static_cast<void (NwAppIsDefaultBrowserFunction::*)
-      (shell_integration::DefaultWebClientState)>(&NwAppIsDefaultBrowserFunction::OnCallback),
-        base::RetainedRef(this))));
+      new shell_integration::DefaultBrowserWorker());
 
   browserWorker->set_interactive_permitted(true);
-  browserWorker->StartCheckIsDefault();
+  browserWorker->StartCheckIsDefault(
+      base::BindOnce(&NwAppIsDefaultBrowserFunction::OnCallback, this));
 
   return RespondLater();
 }
@@ -301,13 +299,11 @@ void NwAppIsDefaultBrowserFunction::OnCallback(
 ExtensionFunction::ResponseAction
 NwAppSetDefaultBrowserFunction::Run() {
   scoped_refptr<shell_integration::DefaultBrowserWorker> browserWorker(
-    new shell_integration::DefaultBrowserWorker(
-      base::Bind(static_cast<void (NwAppSetDefaultBrowserFunction::*)
-      (shell_integration::DefaultWebClientState)>(&NwAppSetDefaultBrowserFunction::OnCallback),
-        base::RetainedRef(this))));
+    new shell_integration::DefaultBrowserWorker());
 
   browserWorker->set_interactive_permitted(true);
-  browserWorker->StartSetAsDefault();
+  browserWorker->StartSetAsDefault(
+      base::BindOnce(&NwAppSetDefaultBrowserFunction::OnCallback, this));
 
   return RespondLater();
 }
@@ -400,18 +396,16 @@ void NwAppSetDefaultBrowserFunction::OnCallback(
 ExtensionFunction::ResponseAction
 NwAppRegisterBrowserFunction::Run() {
   scoped_refptr<shell_integration::DefaultBrowserWorker> browserWorker(
-    new shell_integration::DefaultBrowserWorker(
-      base::Bind(static_cast<void (NwAppRegisterBrowserFunction::*)
-      (shell_integration::DefaultWebClientState)>(&NwAppRegisterBrowserFunction::OnCallback),
-        base::RetainedRef(this))));
+    new shell_integration::DefaultBrowserWorker());
 
-  browserWorker->StartRegistration();
+  browserWorker->StartRegistration(
+      base::BindOnce(&NwAppRegisterBrowserFunction::OnCallback, this));
 
   return RespondLater();
 }
 
 void NwAppRegisterBrowserFunction::OnCallback(
-  shell_integration::DefaultWebClientState state) {
+    shell_integration::DefaultWebClientState state) {
   if (SetRegistrationViaRegistry())
     Respond(OneArgument(std::unique_ptr<base::Value>(new base::Value(true))));
   else
@@ -474,12 +468,9 @@ bool NwAppRegisterBrowserFunction::SetRegistrationViaRegistry() {
 ExtensionFunction::ResponseAction
 NwAppUnregisterBrowserFunction::Run() {
   scoped_refptr<shell_integration::DefaultBrowserWorker> browserWorker(
-    new shell_integration::DefaultBrowserWorker(
-      base::Bind(static_cast<void (NwAppUnregisterBrowserFunction::*)
-      (shell_integration::DefaultWebClientState)>(&NwAppUnregisterBrowserFunction::OnCallback),
-        base::RetainedRef(this))));
+    new shell_integration::DefaultBrowserWorker());
 
-  browserWorker->StartRegistration();
+  browserWorker->StartRegistration(base::BindOnce(&NwAppUnregisterBrowserFunction::OnCallback, this));
 
   return RespondLater();
 }
