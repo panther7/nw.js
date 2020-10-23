@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -o pipefail
 set -e
 
 SCRIPTDIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
@@ -20,14 +21,31 @@ TITLE_MESSAGE="NW.js $GITTAG (Node v$NODE_VER, Chromium $CHROMIUM_VER)"
 BODY_MESSAGE="${CI_COMMIT_SHORT_SHA}: ${CI_COMMIT_MESSAGE}
  - branch: ${CI_COMMIT_REF_NAME}
  - url: ${CI_PROJECT_URL}/-/commit/${CI_COMMIT_SHA}"
+GIT_USERNAME="Gitlab Runner"
 
 SRC_REPO=${PWD}
 
 echo "Deploying from ${SRC_REPO}"
 
 BIN_REPO=${HOME}/NWjs-build-linux
+GIT_REPO=git@gitlab.seznam.net:sbrowser/software/NWjs-build-linux.git
 if [[ $OSTYPE == "darwin"* ]]; then
     BIN_REPO=${HOME}/NWjs-build-mac
+    GIT_REPO=git@gitlab.seznam.net:sbrowser/software/NWjs-build-mac.git    
+fi
+
+# enable ssh-agent for gitlab runner
+eval $(ssh-agent -s)
+ssh-add
+
+if [[ ! -d $BIN_REPO ]]; then
+    # init repo
+    git lfs install &&
+    git clone ${GIT_REPO} "${BIN_REPO}" &&
+    pushd "${BIN_REPO}" &&
+
+    # set username
+    git config user.name "${GIT_USERNAME}"
 fi
 
 ARTIFACT=""
